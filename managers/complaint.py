@@ -6,11 +6,13 @@ from models import complaint
 from models.enums import RoleType, State
 from db import database
 from services.s3 import S3Service
+from services.ses import SESService
 from utils.helpers import decode_photo
 
 
 
 s3 = S3Service()
+ses = SESService()
 
 
 class ComplaintManager:
@@ -44,6 +46,8 @@ class ComplaintManager:
     @staticmethod
     async def approve(id_):
         await database.execute(complaint.update().where(complaint.c.id == id_).values(status=State.approved))
+        ses.send_mail("Complaint Approved!", ["robertarthur318@gmail.com"], 
+                      "Congrats your claim is approved, check your bank account for your refund")
 
 
     @staticmethod
